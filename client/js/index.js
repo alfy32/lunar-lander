@@ -2,23 +2,52 @@
 setCanvasSize();
 drawMoon();
 
+var rocket = {
+  image: new Image(),
+  x: 100,
+  y: 100,
+  images: 8,
+  imageNumber: 0,
+  speed: 10
+};
 
-var rocket = new Image();
-rocket.src = '/images/rocket.png';
-rocket.onload = function() {
-  console.log(rocket)
-  drawRocket(200,200);
+rocket.image.src = '/images/rocket.png';
+rocket.image.onload = function() {
+  rocket.x = window.innerWidth/2 - rocket.image.width/8;
+  rocket.y = window.innerHeight - rocket.image.height/2;
+
+  drawRocket();
+
+  setInterval(function() {
+    rocket.y--;
+    redraw();
+  }, rocket.speed);
 };
 
 $(window).resize(function(){
   setCanvasSize();
+  clearCanvas();
   drawMoon();
+  drawRocket()
 });
 
 function setCanvasSize() {
 	var canvas = $('canvas');
 	canvas.attr('width', window.innerWidth);
 	canvas.attr('height', window.innerHeight);
+}
+
+function redraw() {
+  clearCanvas();
+  drawMoon();
+  drawRocket();
+}
+
+function clearCanvas() {
+  var canvas = $('canvas')[0];
+  var context = canvas.getContext('2d');
+
+  context.clearRect(0,0,canvas.width, canvas.height);
 }
 
 function drawMoon() {
@@ -42,16 +71,30 @@ function drawMoon() {
 var width = 100;
 var height = 150;
 
-function drawRocket(x,y) {
+function drawRocket() {
   var canvas = $('canvas')[0];
   var context = canvas.getContext('2d');
 
-  //$('body').append(rocket);
+  var sprite = {
+    x: rocket.image.width/4 * (rocket.imageNumber%4),
+    y: rocket.image.height/2 * Math.floor(rocket.imageNumber/4),
+    width: rocket.image.width/4,
+    height: rocket.image.height/2
+  };
 
-  context.drawImage(rocket, 
-      0,0,
-      width, height,
-      x, y, 
-      width, height
+  var draw = {
+    x: rocket.x,
+    y: rocket.y,
+    width: rocket.image.width/4,
+    height: rocket.image.height/2
+  };
+
+  context.drawImage(rocket.image, 
+      sprite.x, sprite.y,
+      sprite.width, sprite.height,
+      draw.x, draw.y, 
+      draw.width, draw.height
     );
+
+  rocket.imageNumber = (rocket.imageNumber + 1) % rocket.images;
 }
